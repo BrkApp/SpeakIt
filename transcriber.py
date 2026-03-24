@@ -1,8 +1,38 @@
 """Whisper transcription wrapper — loads the model once and reuses it."""
 
+import re
+
 from faster_whisper import WhisperModel
 
 import config
+
+
+def _auto_punctuate(text: str) -> str:
+    """Add basic punctuation to raw transcription output.
+
+    - Capitalises the first letter of the text.
+    - Ensures the text ends with a period if it doesn't already end with
+      sentence-ending punctuation.
+    - Capitalises the first letter after sentence-ending punctuation.
+    """
+    if not text:
+        return text
+
+    # Ensure trailing punctuation
+    if text[-1] not in ".!?…":
+        text += "."
+
+    # Capitalise first character
+    text = text[0].upper() + text[1:]
+
+    # Capitalise after sentence-ending punctuation
+    text = re.sub(
+        r'([.!?…]\s+)(\w)',
+        lambda m: m.group(1) + m.group(2).upper(),
+        text,
+    )
+
+    return text
 
 
 class Transcriber:
@@ -44,4 +74,9 @@ class Transcriber:
             vad_filter=True,
         )
         text = " ".join(seg.text.strip() for seg in segments)
-        return text.strip()
+        text = text.strip()
+
+        if config.AUTO_PUNCTUATE:
+            text = _auto_punctuate(text)
+
+        return text

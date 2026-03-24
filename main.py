@@ -18,6 +18,7 @@ from audio import AudioRecorder
 from transcriber import Transcriber
 from injector import inject_text
 from notifier import notify
+from autostart import is_autostart_enabled, toggle_autostart
 
 # ---------------------------------------------------------------------------
 # Globals
@@ -129,6 +130,13 @@ def _quit_app(icon: pystray.Icon, _item: pystray.MenuItem) -> None:
     icon.stop()
 
 
+def _toggle_autostart_menu(icon: pystray.Icon, _item: pystray.MenuItem) -> None:
+    """Toggle auto-start with Windows."""
+    new_state = toggle_autostart()
+    status = "activé" if new_state else "désactivé"
+    notify("SpeakIt", f"Démarrage automatique {status}")
+
+
 def _build_tray() -> pystray.Icon:
     menu = pystray.Menu(
         pystray.MenuItem("SpeakIt — Dictée vocale", lambda *_: None, enabled=False),
@@ -137,6 +145,11 @@ def _build_tray() -> pystray.Icon:
         pystray.MenuItem(f"Modèle : {config.WHISPER_MODEL}", lambda *_: None, enabled=False),
         pystray.MenuItem(f"Langue : {config.WHISPER_LANGUAGE}", lambda *_: None, enabled=False),
         pystray.Menu.SEPARATOR,
+        pystray.MenuItem(
+            "Démarrer avec Windows",
+            _toggle_autostart_menu,
+            checked=lambda _: is_autostart_enabled(),
+        ),
         pystray.MenuItem("Quitter", _quit_app),
     )
     icon = pystray.Icon("SpeakIt", icon_idle, "SpeakIt — Dictée vocale", menu)
