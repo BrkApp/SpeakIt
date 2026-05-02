@@ -1,9 +1,9 @@
 """Configuration for the voice dictation application."""
 
 # Whisper model settings
-WHISPER_MODEL = "base"          # "tiny", "base", or "small"
-WHISPER_LANGUAGE = "fr"         # Language code (e.g., "fr", "en")
-COMPUTE_TYPE = "int8"           # "int8" for CPU, "float16" for GPU
+WHISPER_MODEL = "whisper-base-model"   # Local path to model directory
+WHISPER_LANGUAGE = "fr"                # Language code (e.g., "fr", "en")
+COMPUTE_TYPE = "float32"              # "float32" for CPU compatibility
 
 # Hotkey
 HOTKEY = "ctrl+space"
